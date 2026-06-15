@@ -127,7 +127,7 @@ function App() {
     }
   }
 
-  function handleResetRemesh() {
+function handleResetRemesh() {
     if (!sourceMesh || isProcessingMesh) {
       return;
     }
@@ -136,25 +136,7 @@ function App() {
     setMesh(sourceMesh);
   }
 
-  function handleResetRemesh() {
-    if (!sourceMesh || isProcessingMesh) {
-      return;
-    }
-
-    setErrorMessage(null);
-    setMesh(sourceMesh);
-  }
-
-  function handleResetRemesh() {
-    if (!sourceMesh || isProcessingMesh) {
-      return;
-    }
-
-    setErrorMessage(null);
-    setMesh(sourceMesh);
-  }
-
-  return (
+return (
     <main className="app">
       <section className="viewer-layout">
         <div className="viewer-panel">
@@ -313,6 +295,7 @@ function waitForProcessingOverlayPaint(): Promise<void> {
 }
 
 export default App;
+
 
 
 
