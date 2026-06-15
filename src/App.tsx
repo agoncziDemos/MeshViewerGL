@@ -4,6 +4,7 @@ import type { MeshData } from "./engine/mesh/meshTypes";
 import { FileLoader } from "./ui/FileLoader";
 import { MeshStatsPanel } from "./ui/MeshStatsPanel";
 import { SampleStlMenu, type SampleStlOption } from "./ui/SampleStlMenu";
+import { SaveStlButton } from "./ui/SaveStlButton";
 import { ViewerCanvas } from "./ui/ViewerCanvas";
 
 type WorkerSuccessResponse = {
@@ -184,8 +185,8 @@ function App() {
                     MeshViewerGL is a raw WebGL2 STL inspection viewer. Load an
                     STL, inspect mesh statistics, orbit the model, toggle
                     wireframe, normals, bounding box, and measurement overlays,
-                    switch shader modes, and remesh the displayed mesh by target
-                    edge length.
+                    switch shader modes, remesh the displayed mesh by target
+                    edge length, and save the currently displayed mesh as an STL.
                   </span>
                 </span>
               </div>
@@ -200,6 +201,8 @@ function App() {
                 disabled={isProcessingMesh}
                 onSampleSelected={handleSampleSelected}
               />
+
+              <SaveStlButton mesh={mesh} disabled={isProcessingMesh} />
             </div>
           </header>
 
@@ -342,4 +345,5 @@ function waitForProcessingOverlayPaint(): Promise<void> {
 }
 
 export default App;
+
 
