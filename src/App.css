@@ -1,4 +1,4 @@
-﻿* {
+* {
   box-sizing: border-box;
 }
 
@@ -483,15 +483,15 @@ button.active {
   opacity: 0;
   pointer-events: none;
   transform: translateY(-4px);
-  transition:
+  user-select: text; transition:
     opacity 120ms ease,
     transform 120ms ease;
 }
 
-.app-info:hover .app-info-tooltip,
-.app-info:focus .app-info-tooltip {
+.app-info:hover .app-info-tooltip, .app-info:focus .app-info-tooltip, .app-info:focus-within .app-info-tooltip {
   opacity: 1;
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 .save-stl-button {
