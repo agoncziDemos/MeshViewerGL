@@ -171,7 +171,24 @@ function App() {
         <div className="viewer-panel">
           <header className="app-header">
             <div>
-              <h1>MeshViewerGL</h1>
+                            <div className="app-title-row">
+                <h1>MeshViewerGL</h1>
+
+                <span
+                  className="app-info"
+                  tabIndex={0}
+                  aria-label="MeshViewerGL information"
+                >
+                  i
+                  <span className="app-info-tooltip">
+                    MeshViewerGL is a raw WebGL2 STL inspection viewer. Load an
+                    STL, inspect mesh statistics, orbit the model, toggle
+                    wireframe, normals, bounding box, and measurement overlays,
+                    switch shader modes, and remesh the displayed mesh by target
+                    edge length.
+                  </span>
+                </span>
+              </div>
               <p>STL mesh viewer and inspection tool.</p>
             </div>
 
@@ -325,3 +342,4 @@ function waitForProcessingOverlayPaint(): Promise<void> {
 }
 
 export default App;
+

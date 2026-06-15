@@ -442,3 +442,54 @@ button.active {
 .sample-menu-panel button:hover {
   background: #eef4ff;
 }
+
+.app-title-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #aeb8c5;
+  border-radius: 999px;
+  background: white;
+  color: #344256;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: help;
+}
+
+.app-info-tooltip {
+  position: absolute;
+  z-index: 50;
+  left: 0;
+  top: calc(100% + 10px);
+  width: 330px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #17202a;
+  color: white;
+  box-shadow: 0 14px 34px rgba(30, 42, 60, 0.22);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.app-info:hover .app-info-tooltip,
+.app-info:focus .app-info-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
