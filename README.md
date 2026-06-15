@@ -1,6 +1,7 @@
 ﻿# MeshViewerGL Demo
 
 Live demo: [MeshViewerGL](https://agonczidemos.github.io/MeshViewerGL/)
+
 MeshViewerGL Demo is a browser-based STL mesh viewer and inspection tool. It loads triangle meshes, renders them with a custom WebGL2 pipeline, provides interactive camera controls, shows mesh statistics, supports inspection overlays, and lets the user remesh or export the currently displayed mesh.
 
 The main goal is to make the rendering and inspection pipeline explicit: STL parsing, mesh buffers, shader programs, camera transforms, picking, overlays, measurement tools, and mesh-processing controls are implemented directly in the application code.
