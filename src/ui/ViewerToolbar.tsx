@@ -134,9 +134,9 @@ export function ViewerToolbar({
           <input
             aria-label="Remesh target edge length"
             type="range"
-            min="0.5"
+            min="0.1"
             max="5"
-            step="0.5"
+            step="0.1"
             value={remeshTargetEdgeLength}
             onChange={(event) =>
               onRemeshTargetEdgeLengthChange(Number(event.target.value))
@@ -178,5 +178,6 @@ function LightSlider({ label, value, onChange }: LightSliderProps) {
     </label>
   );
 }
+
 
 
