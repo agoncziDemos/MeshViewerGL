@@ -127,6 +127,33 @@ function App() {
     }
   }
 
+  function handleResetRemesh() {
+    if (!sourceMesh || isProcessingMesh) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setMesh(sourceMesh);
+  }
+
+  function handleResetRemesh() {
+    if (!sourceMesh || isProcessingMesh) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setMesh(sourceMesh);
+  }
+
+  function handleResetRemesh() {
+    if (!sourceMesh || isProcessingMesh) {
+      return;
+    }
+
+    setErrorMessage(null);
+    setMesh(sourceMesh);
+  }
+
   return (
     <main className="app">
       <section className="viewer-layout">
@@ -158,7 +185,9 @@ function App() {
               viewResetKey={viewResetKey}
               isProcessingMesh={isProcessingMesh}
               remeshTargetEdgeLength={remeshTargetEdgeLength}
+              canResetRemesh={Boolean(sourceMesh) && mesh !== sourceMesh && !isProcessingMesh}
               onRemesh={handleRemesh}
+              onResetRemesh={handleResetRemesh}
               onRemeshTargetEdgeLengthChange={setRemeshTargetEdgeLength}
             />
 
@@ -284,4 +313,7 @@ function waitForProcessingOverlayPaint(): Promise<void> {
 }
 
 export default App;
+
+
+
 

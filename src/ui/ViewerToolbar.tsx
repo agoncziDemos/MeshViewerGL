@@ -10,6 +10,7 @@ type ViewerToolbarProps = {
   lightDirection: Vec3;
   remeshTargetEdgeLength: number;
   canRemesh: boolean;
+  canResetRemesh: boolean;
   onShaderModeChange: (shaderMode: ShaderMode) => void;
   onWireframeToggle: () => void;
   onBoundingBoxToggle: () => void;
@@ -19,6 +20,7 @@ type ViewerToolbarProps = {
   onFitView: () => void;
   onClearMeasurement: () => void;
   onRemesh: () => void;
+  onResetRemesh: () => void;
   onRemeshTargetEdgeLengthChange: (targetEdgeLength: number) => void;
 };
 
@@ -31,6 +33,7 @@ export function ViewerToolbar({
   lightDirection,
   remeshTargetEdgeLength,
   canRemesh,
+  canResetRemesh,
   onShaderModeChange,
   onWireframeToggle,
   onBoundingBoxToggle,
@@ -40,6 +43,7 @@ export function ViewerToolbar({
   onFitView,
   onClearMeasurement,
   onRemesh,
+  onResetRemesh,
   onRemeshTargetEdgeLengthChange,
 }: ViewerToolbarProps) {
   return (
@@ -143,6 +147,10 @@ export function ViewerToolbar({
         <button type="button" disabled={!canRemesh} onClick={onRemesh}>
           Remesh
         </button>
+
+        <button type="button" disabled={!canResetRemesh} onClick={onResetRemesh}>
+          Reset
+        </button>
       </div>
     </div>
   );
@@ -170,3 +178,5 @@ function LightSlider({ label, value, onChange }: LightSliderProps) {
     </label>
   );
 }
+
+

@@ -33,7 +33,9 @@ type ViewerCanvasProps = {
   viewResetKey: number;
   isProcessingMesh: boolean;
   remeshTargetEdgeLength: number;
+  canResetRemesh: boolean;
   onRemesh: () => void;
+  onResetRemesh: () => void;
   onRemeshTargetEdgeLengthChange: (targetEdgeLength: number) => void;
 };
 
@@ -54,7 +56,9 @@ export function ViewerCanvas({
   viewResetKey,
   isProcessingMesh,
   remeshTargetEdgeLength,
+  canResetRemesh,
   onRemesh,
+  onResetRemesh,
   onRemeshTargetEdgeLengthChange,
 }: ViewerCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -303,6 +307,7 @@ export function ViewerCanvas({
         lightDirection={lightDirection}
         remeshTargetEdgeLength={remeshTargetEdgeLength}
         canRemesh={Boolean(mesh) && !isProcessingMesh}
+        canResetRemesh={canResetRemesh}
         onShaderModeChange={setShaderMode}
         onWireframeToggle={() => setShowWireframe((value) => !value)}
         onBoundingBoxToggle={() => setShowBoundingBox((value) => !value)}
@@ -312,6 +317,7 @@ export function ViewerCanvas({
         onFitView={handleFitView}
         onClearMeasurement={handleClearMeasurement}
         onRemesh={onRemesh}
+        onResetRemesh={onResetRemesh}
         onRemeshTargetEdgeLengthChange={onRemeshTargetEdgeLengthChange}
       />
 
@@ -361,4 +367,5 @@ function updateDragMovedState(
     dragState.moved = true;
   }
 }
+
 
