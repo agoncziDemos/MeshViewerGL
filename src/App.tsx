@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useRef, useState } from "react";
 import "./App.css";
 import type { MeshData } from "./engine/mesh/meshTypes";
 import { FileLoader } from "./ui/FileLoader";
@@ -30,6 +30,8 @@ const SAMPLE_STLS: SampleStlOption[] = [
 ];
 
 function App() {
+  const clearProcessingAfterViewerUpdateRef = useRef(false);
+
   const [sourceMesh, setSourceMesh] = useState<MeshData | null>(null);
   const [mesh, setMesh] = useState<MeshData | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -50,19 +52,18 @@ function App() {
 
       const loadedMesh = await loadStlFileInWorker(file);
 
+      clearProcessingAfterViewerUpdateRef.current = true;
       setSourceMesh(loadedMesh);
       setMesh(loadedMesh);
       setViewResetKey((value) => value + 1);
     } catch (error) {
+      clearProcessingAfterViewerUpdateRef.current = false;
       setSourceMesh(null);
       setMesh(null);
       setErrorMessage(
         error instanceof Error ? error.message : "Failed to load STL file.",
       );
-    } finally {
-      setIsProcessingMesh(false);
-      setProcessingTitle(null);
-      setProcessingDetail(null);
+      clearProcessingState();
     }
   }
 
@@ -77,19 +78,18 @@ function App() {
 
       const loadedMesh = await loadSampleStlInWorker(sample);
 
+      clearProcessingAfterViewerUpdateRef.current = true;
       setSourceMesh(loadedMesh);
       setMesh(loadedMesh);
       setViewResetKey((value) => value + 1);
     } catch (error) {
+      clearProcessingAfterViewerUpdateRef.current = false;
       setSourceMesh(null);
       setMesh(null);
       setErrorMessage(
         error instanceof Error ? error.message : "Failed to load sample STL.",
       );
-    } finally {
-      setIsProcessingMesh(false);
-      setProcessingTitle(null);
-      setProcessingDetail(null);
+      clearProcessingState();
     }
   }
 
@@ -115,28 +115,57 @@ function App() {
         remeshTargetEdgeLength,
       );
 
+      clearProcessingAfterViewerUpdateRef.current = true;
       setMesh(remeshedMesh);
     } catch (error) {
+      clearProcessingAfterViewerUpdateRef.current = false;
       setErrorMessage(
         error instanceof Error ? error.message : "Failed to remesh STL file.",
       );
-    } finally {
-      setIsProcessingMesh(false);
-      setProcessingTitle(null);
-      setProcessingDetail(null);
+      clearProcessingState();
     }
   }
 
-function handleResetRemesh() {
+  async function handleResetRemesh() {
     if (!sourceMesh || isProcessingMesh) {
       return;
     }
 
-    setErrorMessage(null);
-    setMesh(sourceMesh);
+    try {
+      setErrorMessage(null);
+      setIsProcessingMesh(true);
+      setProcessingTitle("Resetting Mesh");
+      setProcessingDetail(sourceMesh.name);
+
+      await waitForProcessingOverlayPaint();
+
+      clearProcessingAfterViewerUpdateRef.current = true;
+      setMesh(sourceMesh);
+    } catch (error) {
+      clearProcessingAfterViewerUpdateRef.current = false;
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to reset mesh.",
+      );
+      clearProcessingState();
+    }
   }
 
-return (
+  function handleViewerMeshApplied() {
+    if (!clearProcessingAfterViewerUpdateRef.current) {
+      return;
+    }
+
+    clearProcessingAfterViewerUpdateRef.current = false;
+    clearProcessingState();
+  }
+
+  function clearProcessingState() {
+    setIsProcessingMesh(false);
+    setProcessingTitle(null);
+    setProcessingDetail(null);
+  }
+
+  return (
     <main className="app">
       <section className="viewer-layout">
         <div className="viewer-panel">
@@ -171,6 +200,7 @@ return (
               onRemesh={handleRemesh}
               onResetRemesh={handleResetRemesh}
               onRemeshTargetEdgeLengthChange={setRemeshTargetEdgeLength}
+              onViewerMeshApplied={handleViewerMeshApplied}
             />
 
             {isProcessingMesh && (
@@ -295,8 +325,3 @@ function waitForProcessingOverlayPaint(): Promise<void> {
 }
 
 export default App;
-
-
-
-
-

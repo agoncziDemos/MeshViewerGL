@@ -37,6 +37,7 @@ type ViewerCanvasProps = {
   onRemesh: () => void;
   onResetRemesh: () => void;
   onRemeshTargetEdgeLengthChange: (targetEdgeLength: number) => void;
+  onViewerMeshApplied: () => void;
 };
 
 type PointerDragState = {
@@ -60,6 +61,7 @@ export function ViewerCanvas({
   onRemesh,
   onResetRemesh,
   onRemeshTargetEdgeLengthChange,
+  onViewerMeshApplied,
 }: ViewerCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rendererRef = useRef<WebglRenderer | null>(null);
@@ -124,6 +126,7 @@ export function ViewerCanvas({
 
   useEffect(() => {
     rendererRef.current?.setMesh(mesh);
+    onViewerMeshApplied();
   }, [mesh]);
 
   useEffect(() => {
@@ -367,5 +370,6 @@ function updateDragMovedState(
     dragState.moved = true;
   }
 }
+
 
 
