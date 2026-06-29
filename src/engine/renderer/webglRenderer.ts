@@ -41,6 +41,8 @@ type LineUniforms = {
   view: WebGLUniformLocation;
   projection: WebGLUniformLocation;
   color: WebGLUniformLocation;
+  shaderMode: WebGLUniformLocation;
+  clipZ: WebGLUniformLocation;
 };
 
 type MeshGpuResources = {
@@ -78,7 +80,6 @@ export class WebglRenderer {
   private readonly meshUniforms: MeshUniforms;
   private readonly lineUniforms: LineUniforms;
   private readonly dynamicBuffer: WebGLBuffer;
-
   private meshResources: MeshGpuResources | null = null;
   private readonly model = mat4.create();
   private readonly normalMatrix = mat3.create();
@@ -107,7 +108,6 @@ export class WebglRenderer {
       meshVertexShaderSource,
       meshFragmentShaderSource,
     );
-
     this.lineProgram = createProgram(
       gl,
       lineVertexShaderSource,
@@ -120,8 +120,16 @@ export class WebglRenderer {
       projection: getUniformLocation(gl, this.meshProgram, "uProjection"),
       normalMatrix: getUniformLocation(gl, this.meshProgram, "uNormalMatrix"),
       baseColor: getUniformLocation(gl, this.meshProgram, "uBaseColor"),
-      lightDirection: getUniformLocation(gl, this.meshProgram, "uLightDirection"),
-      cameraPosition: getUniformLocation(gl, this.meshProgram, "uCameraPosition"),
+      lightDirection: getUniformLocation(
+        gl,
+        this.meshProgram,
+        "uLightDirection",
+      ),
+      cameraPosition: getUniformLocation(
+        gl,
+        this.meshProgram,
+        "uCameraPosition",
+      ),
       boundsMin: getUniformLocation(gl, this.meshProgram, "uBoundsMin"),
       boundsMax: getUniformLocation(gl, this.meshProgram, "uBoundsMax"),
       shaderMode: getUniformLocation(gl, this.meshProgram, "uShaderMode"),
@@ -132,6 +140,8 @@ export class WebglRenderer {
       view: getUniformLocation(gl, this.lineProgram, "uView"),
       projection: getUniformLocation(gl, this.lineProgram, "uProjection"),
       color: getUniformLocation(gl, this.lineProgram, "uColor"),
+      shaderMode: getUniformLocation(gl, this.lineProgram, "uShaderMode"),
+      clipZ: getUniformLocation(gl, this.lineProgram, "uClipZ"),
     };
 
     gl.enable(gl.DEPTH_TEST);
@@ -229,16 +239,20 @@ export class WebglRenderer {
     const gl = this.gl;
 
     this.resizeToDisplaySize();
+
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     if (!this.meshResources) {
       return;
     }
 
+    const shaderMode = SHADER_MODE_TO_ID[options.shaderMode];
+    const clipZ = this.getClipZ(options.clipRatio);
+
     mat4.identity(this.model);
     mat3.normalFromMat4(this.normalMatrix, this.model);
 
-    this.renderMesh(camera, options);
+    this.renderMesh(camera, options, shaderMode, clipZ);
 
     if (options.showWireframe) {
       this.renderStaticLines(
@@ -246,6 +260,8 @@ export class WebglRenderer {
         this.meshResources.wireframeBuffer,
         this.meshResources.wireframeVertexCount,
         [0.04, 0.07, 0.11, 0.55],
+        shaderMode,
+        clipZ,
       );
     }
 
@@ -255,6 +271,8 @@ export class WebglRenderer {
         this.meshResources.boundingBoxBuffer,
         this.meshResources.boundingBoxVertexCount,
         [0.95, 0.52, 0.12, 1.0],
+        SHADER_MODE_TO_ID.solid,
+        clipZ,
       );
     }
 
@@ -264,6 +282,8 @@ export class WebglRenderer {
         this.meshResources.normalArrowBuffer,
         this.meshResources.normalArrowVertexCount,
         [0.88, 0.15, 0.15, 1.0],
+        shaderMode,
+        clipZ,
       );
     }
 
@@ -277,16 +297,17 @@ export class WebglRenderer {
     this.gl.deleteProgram(this.lineProgram);
   }
 
-  private renderMesh(camera: RenderCamera, options: RenderOptions) {
+  private renderMesh(
+    camera: RenderCamera,
+    options: RenderOptions,
+    shaderMode: number,
+    clipZ: number,
+  ) {
     if (!this.meshResources) {
       return;
     }
 
     const gl = this.gl;
-    const clipZ =
-      this.meshResources.boundsMin[2] +
-      (this.meshResources.boundsMax[2] - this.meshResources.boundsMin[2]) *
-        options.clipRatio;
 
     if (options.shaderMode === "xray") {
       gl.enable(gl.BLEND);
@@ -310,16 +331,12 @@ export class WebglRenderer {
       false,
       this.normalMatrix,
     );
-
     gl.uniform3f(this.meshUniforms.baseColor, 0.3, 0.48, 0.72);
     gl.uniform3fv(this.meshUniforms.lightDirection, options.lightDirection);
     gl.uniform3fv(this.meshUniforms.cameraPosition, camera.position);
     gl.uniform3fv(this.meshUniforms.boundsMin, this.meshResources.boundsMin);
     gl.uniform3fv(this.meshUniforms.boundsMax, this.meshResources.boundsMax);
-    gl.uniform1i(
-      this.meshUniforms.shaderMode,
-      SHADER_MODE_TO_ID[options.shaderMode],
-    );
+    gl.uniform1i(this.meshUniforms.shaderMode, shaderMode);
     gl.uniform1f(this.meshUniforms.clipZ, clipZ);
 
     gl.drawArrays(gl.TRIANGLES, 0, this.meshResources.vertexCount);
@@ -335,6 +352,8 @@ export class WebglRenderer {
     buffer: WebGLBuffer,
     vertexCount: number,
     color: [number, number, number, number],
+    shaderMode: number,
+    clipZ: number,
   ) {
     const gl = this.gl;
 
@@ -342,6 +361,8 @@ export class WebglRenderer {
     gl.uniformMatrix4fv(this.lineUniforms.view, false, camera.view);
     gl.uniformMatrix4fv(this.lineUniforms.projection, false, camera.projection);
     gl.uniform4fv(this.lineUniforms.color, color);
+    gl.uniform1i(this.lineUniforms.shaderMode, shaderMode);
+    gl.uniform1f(this.lineUniforms.clipZ, clipZ);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.enableVertexAttribArray(0);
@@ -362,6 +383,8 @@ export class WebglRenderer {
     gl.useProgram(this.lineProgram);
     gl.uniformMatrix4fv(this.lineUniforms.view, false, camera.view);
     gl.uniformMatrix4fv(this.lineUniforms.projection, false, camera.projection);
+    gl.uniform1i(this.lineUniforms.shaderMode, SHADER_MODE_TO_ID.solid);
+    gl.uniform1f(this.lineUniforms.clipZ, 0.0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.dynamicBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, pointPositions, gl.DYNAMIC_DRAW);
@@ -369,6 +392,7 @@ export class WebglRenderer {
     gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
 
     gl.disable(gl.DEPTH_TEST);
+
     gl.uniform4f(this.lineUniforms.color, 0.9, 0.12, 0.12, 1.0);
     gl.drawArrays(gl.POINTS, 0, points.length);
 
@@ -380,6 +404,18 @@ export class WebglRenderer {
     gl.enable(gl.DEPTH_TEST);
     gl.disableVertexAttribArray(0);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  }
+
+  private getClipZ(clipRatio: number): number {
+    if (!this.meshResources) {
+      return 0;
+    }
+
+    return (
+      this.meshResources.boundsMin[2] +
+      (this.meshResources.boundsMax[2] - this.meshResources.boundsMin[2]) *
+        clipRatio
+    );
   }
 
   private disposeMesh() {

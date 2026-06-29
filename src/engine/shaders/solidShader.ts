@@ -96,7 +96,11 @@ layout(location = 0) in vec3 aPosition;
 uniform mat4 uView;
 uniform mat4 uProjection;
 
+out vec3 vWorldPosition;
+
 void main() {
+  vWorldPosition = aPosition;
+
   gl_Position = uProjection * uView * vec4(aPosition, 1.0);
   gl_PointSize = 9.0;
 }
@@ -105,11 +109,19 @@ void main() {
 export const lineFragmentShaderSource = `#version 300 es
 precision highp float;
 
+in vec3 vWorldPosition;
+
 uniform vec4 uColor;
+uniform int uShaderMode;
+uniform float uClipZ;
 
 out vec4 outColor;
 
 void main() {
+  if (uShaderMode == 3 && vWorldPosition.z > uClipZ) {
+    discard;
+  }
+
   outColor = uColor;
 }
 `;
