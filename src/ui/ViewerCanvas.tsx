@@ -1,4 +1,4 @@
-﻿import { mat4 } from "gl-matrix";
+import { mat4 } from "gl-matrix";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   createInitialCamera,
@@ -239,8 +239,7 @@ export function ViewerCanvas({
     }
   }
 
-  function handleWheel(event: React.WheelEvent<HTMLCanvasElement>) {
-    event.preventDefault();
+  function handleWheel(event: React.WheelEvent) {
     setCamera((current) => zoomCamera(current, event.deltaY));
   }
 
@@ -327,12 +326,12 @@ export function ViewerCanvas({
       <canvas
         ref={canvasRef}
         className="viewer-canvas"
+        onWheel={handleWheel}
         onContextMenu={handleContextMenu}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        onWheel={handleWheel}
       />
 
       {!mesh && (
@@ -370,6 +369,3 @@ function updateDragMovedState(
     dragState.moved = true;
   }
 }
-
-
-
